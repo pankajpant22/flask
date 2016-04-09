@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Python Flask</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename = 'favicon.ico') }}">
+	<script type="text/javascript" src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename = 'js/bootstrap.min.js') }}"></script>
+</head>
+<header>
+<div class="navbar-header">
+      <a class="navbar-brand" href="/">
+      	<img src="{{ url_for('static', filename = 'images/logo.png') }}" style="max-width:50px">
+      </a>
+   </div>
+   <div class="container-fluid">
+   		<a href="/dashboard">
+		<button type="button" class="btn btn-primary" aria-label="Left Align" style="margin: 15px 15px 5px 0px; height: 44px;">
+			<span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+			Start Learning
+		</button></a>
+	<ul class="nav navbar-nav navbar-right">
+		<a href="/login/" style="margin-right: 20px;">Login</a>
+        <a href="/register/">Register</a>
+    </ul>
+   </div>
+</header>
+<body>
+	<div class="border-row" style="width: 100%; margin-bottom: 15px; border: 1px Solid black;">
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				{% for message in messages %}
+					<div class="alert alert-warning alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						{{ message }}
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+	</div>
+	<div class="container-fluid" style="min-height: 100%;">
+		{% block body %} {% endblock %}
+	</div>
+  	
+</body>
+</html>
