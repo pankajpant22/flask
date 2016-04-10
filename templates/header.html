@@ -22,9 +22,13 @@
 			Start Learning
 		</button></a>
 	<ul class="nav navbar-nav navbar-right">
+		{% if session.logged_in %}
+		<a href="/logout/" style="margin-right: 20px;">Logout</a>
+		{% else %}
 		<a href="/login/" style="margin-right: 20px;">Login</a>
-        <a href="/register/">Register</a>
-    </ul>
+    <a href="/register/">Register</a>
+		{% endif %}
+		</ul>
    </div>
 </header>
 <body>
@@ -43,6 +47,6 @@
 	<div class="container-fluid" style="min-height: 100%;">
 		{% block body %} {% endblock %}
 	</div>
-  	
+
 </body>
 </html>
