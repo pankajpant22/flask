@@ -1,1 +1,15 @@
 https://gist.github.com/adamjohnson/5682757
+
+from flask.ext.mysql import MySQL
+
+mysql = MySQL()
+
+# MySQL configurations
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'pankaj'
+app.config['MYSQL_DATABASE_DB'] = 'flask'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+mysql.init_app(app)
+
+
+https://www.youtube.com/watch?v=1B9YnFsVfdY

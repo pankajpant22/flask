@@ -20,14 +20,8 @@ __all__ = ["register", "lookup", "open", "EncodedFile", "BOM", "BOM_BE",
            "BOM_LE", "BOM32_BE", "BOM32_LE", "BOM64_BE", "BOM64_LE",
            "BOM_UTF8", "BOM_UTF16", "BOM_UTF16_LE", "BOM_UTF16_BE",
            "BOM_UTF32", "BOM_UTF32_LE", "BOM_UTF32_BE",
-           "CodecInfo", "Codec", "IncrementalEncoder", "IncrementalDecoder",
-           "StreamReader", "StreamWriter",
-           "StreamReaderWriter", "StreamRecoder",
-           "getencoder", "getdecoder", "getincrementalencoder",
-           "getincrementaldecoder", "getreader", "getwriter",
-           "encode", "decode", "iterencode", "iterdecode",
            "strict_errors", "ignore_errors", "replace_errors",
-           "xmlcharrefreplace_errors", "backslashreplace_errors",
+           "xmlcharrefreplace_errors",
            "register_error", "lookup_error"]
 
 ### Constants
@@ -79,19 +73,9 @@ BOM64_BE = BOM_UTF32_BE
 ### Codec base classes (defining the API)
 
 class CodecInfo(tuple):
-    """Codec details when looking up the codec registry"""
-
-    # Private API to allow Python to blacklist the known non-Unicode
-    # codecs in the standard library. A more general mechanism to
-    # reliably distinguish test encodings from other codecs will hopefully
-    # be defined for Python 3.5
-    #
-    # See http://bugs.python.org/issue19619
-    _is_text_encoding = True # Assume codecs are text encodings by default
 
     def __new__(cls, encode, decode, streamreader=None, streamwriter=None,
-        incrementalencoder=None, incrementaldecoder=None, name=None,
-        _is_text_encoding=None):
+        incrementalencoder=None, incrementaldecoder=None, name=None):
         self = tuple.__new__(cls, (encode, decode, streamreader, streamwriter))
         self.name = name
         self.encode = encode
@@ -100,8 +84,6 @@ class CodecInfo(tuple):
         self.incrementaldecoder = incrementaldecoder
         self.streamwriter = streamwriter
         self.streamreader = streamreader
-        if _is_text_encoding is not None:
-            self._is_text_encoding = _is_text_encoding
         return self
 
     def __repr__(self):
@@ -138,8 +120,8 @@ class Codec:
             'strict' handling.
 
             The method may not store state in the Codec instance. Use
-            StreamWriter for codecs which have to keep state in order to
-            make encoding efficient.
+            StreamCodec for codecs which have to keep state in order to
+            make encoding/decoding efficient.
 
             The encoder must be able to handle zero length input and
             return an empty object of the output object type in this
@@ -161,8 +143,8 @@ class Codec:
             'strict' handling.
 
             The method may not store state in the Codec instance. Use
-            StreamReader for codecs which have to keep state in order to
-            make decoding efficient.
+            StreamCodec for codecs which have to keep state in order to
+            make encoding/decoding efficient.
 
             The decoder must be able to handle zero length input and
             return an empty object of the output object type in this
@@ -474,12 +456,15 @@ class StreamReader(Codec):
 
         # read until we get the required number of characters (if available)
         while True:
-            # can the request be satisfied from the character buffer?
-            if chars >= 0:
-                if len(self.charbuffer) >= chars:
+            # can the request can be satisfied from the character buffer?
+            if chars < 0:
+                if size < 0:
+                    if self.charbuffer:
+                        break
+                elif len(self.charbuffer) >= size:
                     break
-            elif size >= 0:
-                if len(self.charbuffer) >= size:
+            else:
+                if len(self.charbuffer) >= chars:
                     break
             # we need more data
             if size < 0:
@@ -1069,7 +1054,7 @@ def make_encoding_map(decoding_map):
         during translation.
 
         One example where this happens is cp875.py which decodes
-        multiple character to \\u001a.
+        multiple character to \u001a.
 
     """
     m = {}
